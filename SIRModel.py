@@ -2,16 +2,12 @@ import numpy as np
 import networkx as nx
 import matplotlib.pylab as plt
 
-N = 100
+N = 10000
 beta = 0.3
 mu = 0.1
 
 infectedNodes = []
 numberOfInfected =[]
-
-# TODO infect after time t+1 -- create a temp array for that
-# TODO try to work out the thershold
-# TODO store data in lists
 
 inf = 0 # initial number of infected
 rec = 0 # initial number of recovered
@@ -89,28 +85,19 @@ while (noOfRecovered() < N - 1):
 #    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
 
 
-# Threshold
-# beta/mu = <k> / <k^2> - <k>
-d = dict(nx.degree(BAgraph))
-'''k = nx.average_degree_connectivity(BAgraph)
-k = list(k.values())
-k2 = np.array(k)**2
-
-threshold = []
-
-for i in range (0, len(k)):
-    threshold.append((k[i] / (k2[i] - k[i])))
-
-print (len(d))'''
-
-# TODO use binning to work out the degree distribution of k
+degree_sequence=sorted(dict(nx.degree(BAgraph)).values(),reverse=True) # degree sequence
+#print "Degree sequence", degree_sequence
+dmax=max(degree_sequence)
 
 plt.subplot(211)
 plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.bar(np.arange(0, len(d)), d.values())
+plt.loglog(degree_sequence,'b-',marker='o')
+plt.title("Degree rank plot")
+plt.ylabel("degree")
+plt.xlabel("rank")
 fig = plt.gcf()
 fig.canvas.set_window_title('SIR Model')
 #vals = ax.get_yticks()

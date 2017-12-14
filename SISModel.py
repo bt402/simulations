@@ -87,24 +87,20 @@ for t in range (0, 100):
 #for n,d in BAgraph.nodes(data=True):
 #    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
 
-# Threshold
-# beta/mu = <k> / <k^2>
+degree_sequence=sorted(dict(nx.degree(BAgraph)).values(),reverse=True) # degree sequence
+#print "Degree sequence", degree_sequence
+dmax=max(degree_sequence)
 
-k = nx.average_degree_connectivity(BAgraph)
-k = list(k.values())
-k2 = np.array(k)**2
-
-threshold = []
-
-for i in range (0, len(k)):
-    threshold.append((k[i] / (k2[i])))
 
 plt.subplot(211)
 plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.plot(threshold)
+plt.loglog(degree_sequence,'b-',marker='o')
+plt.title("Degree rank plot")
+plt.ylabel("degree")
+plt.xlabel("rank")
 fig = plt.gcf()
 fig.canvas.set_window_title('SIS Model')
 #vals = ax.get_yticks()
