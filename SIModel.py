@@ -87,7 +87,7 @@ while (beta <= 0.5):
         #plt.plot(i)
         S = N - 1
         I = 1
-        infected.append(np.mean(i))
+    infected.append(np.mean(i))
     threshold.append(beta)
     beta += 0.05
 
