@@ -49,7 +49,6 @@ def infect():
         for s in neighborList:
             # Try to infect every susceptible neigbhour
             if (np.random.random() < beta):
-                #BAgraph.nodes[s].update({'status': 'I'})
                 inftemp.append(s)
 
 def recover():
@@ -77,14 +76,19 @@ def noOfRecovered():
             rec += 1
     return rec
 
+def updateNodes(infectedNodes):
+    for n in infectedNodes:
+        BAgraph.nodes[n].update({'status': 'I'})
+
 # execute until everyone is infected
 for t in range (0, 100):
     infect()
     recover()
-    #print (t)
-    numberOfInfected.append(len(inftemp))
+    print (str(t) + "%")
+    numberOfInfected.append(noOfInfected())
     infectedNodes.extend(inftemp)
     infectedNodes = list(set(infectedNodes).difference(set(rectemp)))
+    updateNodes(inftemp)
 
 S = N - 1
 I = 1

@@ -74,12 +74,17 @@ def noOfRecovered():
             rec += 1
     return rec
 
+def updateNodes(infectedNodes):
+    for n in infectedNodes:
+        BAgraph.nodes[n].update({'status': 'I'})
+
 # execute until everyone is recovered
 while (noOfRecovered() < N - 1):
     infect()
     recover()
-    numberOfInfected.append(len(inftemp))
+    numberOfInfected.append(noOfInfected())
     infectedNodes.extend(inftemp)
+    updateNodes(inftemp)
 
 #for n,d in BAgraph.nodes(data=True):
 #    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
