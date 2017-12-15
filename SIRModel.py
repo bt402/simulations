@@ -54,7 +54,6 @@ def recover():
     rectemp = []
     for i in infectedNodes:
         if (np.random.random() < mu):
-            BAgraph.nodes[i].update({'status' : 'R'})
             rectemp.append(i)
 
 ''' Get number of infected individuals from the enitre graph '''
@@ -78,6 +77,11 @@ def updateNodes(infectedNodes):
     for n in infectedNodes:
         BAgraph.nodes[n].update({'status': 'I'})
 
+def updateRecovered(recoveredNodes):
+    for n in recoveredNodes:
+        BAgraph.nodes[n].update({'status': 'R'})
+
+
 # execute until everyone is recovered
 while (noOfRecovered() < N - 1):
     infect()
@@ -85,6 +89,7 @@ while (noOfRecovered() < N - 1):
     numberOfInfected.append(noOfInfected())
     infectedNodes.extend(inftemp)
     updateNodes(inftemp)
+    updateRecovered(rectemp)
 
 #for n,d in BAgraph.nodes(data=True):
 #    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
