@@ -6,8 +6,6 @@ N = 10000
 beta = 0.3
 mu = 0.1
 
-# TODO keep changing β till everyone is infected.... dumbass
-
 test = []
 betas = []
 
