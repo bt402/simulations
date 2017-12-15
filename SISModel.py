@@ -114,12 +114,23 @@ while (beta <= 2):
     threshold.append(beta/mu)
     beta += 0.05
 
+x = 0
+
+prev = 0
+
+for t in range (0, len(threshold)):
+    current = infected[t]
+    if (abs(current - prev) >= 50):
+        x = threshold[t]
+        break
+
 plt.subplot(211)
 plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.plot(threshold, infected)
+plt.plot(threshold, infected, "o-")
+plt.axvline(x, color='r', linestyle='--')
 plt.ylabel("I")
 plt.xlabel("β/μ")
 fig = plt.gcf()
