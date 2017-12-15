@@ -6,6 +6,11 @@ N = 10000
 beta = 0.3
 mu = 0.1
 
+# TODO keep changing β till everyone is infected.... dumbass
+
+test = []
+betas = []
+
 infectedNodes = []
 numberOfInfected =[]
 
@@ -78,29 +83,47 @@ def noOfRecovered():
 for t in range (0, 100):
     infect()
     recover()
-    print (t)
+    #print (t)
     numberOfInfected.append(noOfInfected())
     infectedNodes.extend(inftemp)
     infectedNodes = list(set(infectedNodes).difference(set(rectemp)))
 
+S = N - 1
+I = 1
+beta = 0.05
+mu = 0.5
 
-#for n,d in BAgraph.nodes(data=True):
-#    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
+threshold = []
+infected = []
 
-degree_sequence=sorted(dict(nx.degree(BAgraph)).values(),reverse=True) # degree sequence
-#print "Degree sequence", degree_sequence
-dmax=max(degree_sequence)
+while (beta <= 2):
 
+    simulations = 200
+    time = 100
+
+    for n in range (0, simulations):
+        i = []
+        s = []
+        for t in range (0, time):
+            if I > 0:
+                p = (I / N) * beta
+                S = S - (beta * S * I / N) + np.random.binomial(I, mu)
+                I = I + (beta * S * I / N) - np.random.binomial(I, mu)
+                i.append(I)
+        S = N - 1
+        I = 1
+    infected.append(np.mean(i))
+    threshold.append(beta/mu)
+    beta += 0.05
 
 plt.subplot(211)
 plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.loglog(degree_sequence,'b-',marker='o')
-plt.title("Degree rank plot")
-plt.ylabel("degree")
-plt.xlabel("rank")
+plt.plot(threshold, infected)
+plt.ylabel("I")
+plt.xlabel("β/μ")
 fig = plt.gcf()
 fig.canvas.set_window_title('SIS Model')
 #vals = ax.get_yticks()
