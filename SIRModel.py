@@ -3,8 +3,8 @@ import networkx as nx
 import matplotlib.pylab as plt
 
 N = 10000
-beta = 0.3
-mu = 0.1
+beta = 0.05
+mu = 0.5
 
 infectedNodes = []
 numberOfInfected =[]
@@ -84,20 +84,45 @@ while (noOfRecovered() < N - 1):
 #for n,d in BAgraph.nodes(data=True):
 #    print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
 
+S = N - 1
+I = 1
+R = 0
 
-degree_sequence=sorted(dict(nx.degree(BAgraph)).values(),reverse=True) # degree sequence
-#print "Degree sequence", degree_sequence
-dmax=max(degree_sequence)
+threshold = []
+infected = []
+
+while (beta <= 2):
+
+    simulations = 200
+    time = 100
+
+    for n in range (0, simulations):
+        i = []
+        r = []
+        for t in range (0, time):
+            if I > 0:
+                p = (I / N) * beta
+                S = S - (beta * S * I / N) + R
+                I = I + (beta * S * I / N) - R
+                R = np.random.binomial(I, mu)
+                i.append(I)
+                r.append(R)
+        S = N - 1
+        I = 1
+        R = 0
+    infected.append(np.mean(i))
+    threshold.append(beta/mu)
+    beta += 0.05
+
 
 plt.subplot(211)
 plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.loglog(degree_sequence,'b-',marker='o')
-plt.title("Degree rank plot")
-plt.ylabel("degree")
-plt.xlabel("rank")
+plt.plot(threshold, infected)
+plt.ylabel("I")
+plt.xlabel("β/μ")
 fig = plt.gcf()
 fig.canvas.set_window_title('SIR Model')
 #vals = ax.get_yticks()
