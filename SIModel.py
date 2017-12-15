@@ -66,7 +66,7 @@ S = N - 1
 I = 1
 
 threshold = []
-test = []
+infected = []
 
 while (beta <= 0.5):
     simulations = 200
@@ -87,7 +87,7 @@ while (beta <= 0.5):
         #plt.plot(i)
         S = N - 1
         I = 1
-    test.append(np.mean(i))
+        infected.append(np.mean(i))
     threshold.append(beta)
     beta += 0.05
 
@@ -96,7 +96,7 @@ plt.xlabel("t")
 plt.ylabel("I")
 plt.plot(numberOfInfected)
 ax = plt.subplot(212)
-plt.plot(threshold, test)
+plt.plot(threshold, infected)
 plt.ylabel("I")
 plt.xlabel("β/μ")
 fig = plt.gcf()
