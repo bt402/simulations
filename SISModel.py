@@ -38,11 +38,11 @@ def susceptibleList(node):
             susList.append(n)
     return susList
 
-inftemp = []
-rectemp = []
+infected_temp = []
+recovered_temp = []
 
 def infect():
-    global inftemp
+    global infected_temp
     inftemp = []
     for i in infectedNodes:
         neighborList = susceptibleList(list(BAgraph.neighbors(i))) # get all suceptible neighbours of infectious node
@@ -52,7 +52,7 @@ def infect():
                 inftemp.append(s)
 
 def recover():
-    global rectemp
+    global recovered_temp
     rectemp = []
     for i in infectedNodes:
         if (np.random.random() < mu):
@@ -90,10 +90,10 @@ for t in range (0, 100):
     recover()
     print (str(t) + "%")
     numberOfInfected.append(noOfInfected())
-    infectedNodes.extend(inftemp)
-    infectedNodes = list(set(infectedNodes).difference(set(rectemp)))
-    updateNodes(inftemp)
-    updateRecovered(rectemp)
+    infectedNodes.extend(infected_temp)
+    infectedNodes = list(set(infectedNodes).difference(set(recovered_temp)))
+    updateNodes(infected_temp)
+    updateRecovered(recovered_temp)
 
 S = N - 1
 I = 1
