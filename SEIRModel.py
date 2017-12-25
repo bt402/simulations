@@ -1,6 +1,7 @@
 import numpy as np
 import networkx as nx
 import matplotlib.pylab as plt
+import time
 
 N = 10000
 beta = 0.05
@@ -9,11 +10,10 @@ k = 0.4 # progression rate from exposed (latent) to infected
 
 infectedNodes = []
 numberOfInfected =[]
-exposedNodes = []
 
 inf = 0 # initial number of infected
 rec = 0 # initial number of recovered
-exp = 0 # initial number of exposed
+exp = 0
 
 BAgraph = nx.barabasi_albert_graph(N, 3)
 
@@ -26,6 +26,11 @@ for n,d in BAgraph.nodes(data=True):
 rand = np.random.randint(1,N)
 # infect one random node
 BAgraph.nodes[rand].update({'status': 'I'})
+
+susceptible = list(BAgraph.neighbors(rand))
+
+for s in susceptible:
+    BAgraph.nodes[s].update({'status': 'E'})
 
 # keep track of infected nodes
 infectedNodes.append(rand)
@@ -65,7 +70,7 @@ def expose():
     exposed_temp = []
     susceptible = []
     for i in infectedNodes:
-        susceptible = BAgraph.neighbors(i)
+        susceptible = list(BAgraph.neighbors(i))
     for s in susceptible:
         exposed_temp.append(s)
 
@@ -107,9 +112,8 @@ def updateExposed(exposedNodes):
         BAgraph.nodes[n].update({'status' : 'E'})
 
 # execute until everyone is recovered
-for t in range (0, 100):
-    #print (str((noOfRecovered() / N) * 100) + "%")
-    print (t)
+start = time.time()
+for t in range(0, 1000):
     expose()
     infect()
     recover()
@@ -118,6 +122,10 @@ for t in range (0, 100):
     updateNodes(infected_temp)
     updateExposed(exposed_temp)
     updateRecovered(recovered_temp)
+
+done = time.time()
+elapsed = done - start
+print(elapsed)
 
 for n,d in BAgraph.nodes(data=True):
     print ("node#" + str(n) + " " + str(BAgraph.nodes[n]['status']))
@@ -131,7 +139,7 @@ beta = 0.05
 threshold = []
 infected = []
 
-while (beta <= 3):
+while (beta <= 2):
 
     simulations = 100
     time = 1000
@@ -155,9 +163,7 @@ while (beta <= 3):
     beta += 0.05
 '''
 x = 0
-
 prev = 0
-
 for t in range (0, len(threshold)):
     current = infected[t]
     if (abs(current - prev) >= 50):
