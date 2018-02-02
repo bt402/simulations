@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
+from pprint import pprint as pp
 
 ''' 
 p - probability of node being occupied
@@ -11,7 +12,7 @@ PG - probability that node is in the giant cluster
 
 # TODO 1. Plot p / Pg
 
-M, N = 10, 10
+M, N = 20, 20
 NOT_VISITED = 0
 
 class PercolatedException(Exception): pass
@@ -19,18 +20,20 @@ class PercolatedException(Exception): pass
 #er_graph = nx.erdos_renyi_graph(N, p)
 lattice = nx.grid_2d_graph(N, N)
 
-attrs = {'status': 1} # 1 cell is closed
+attrs = {'status': 1} # 1 cell is closed, 0 cell is open
 
 def reset_lattice():
     for n,d in lattice.nodes(data=True):
         ''' Set entire lattice to be open'''
         lattice.nodes[n].update(attrs)
 
-def open_random_nodes(fraction):
-    for i in range(0, fraction):
-        node_pos = (np.random.randint(0, M), np.random.randint(0, N))
-        # infect one random node
-        lattice.nodes[node_pos].update({'status': 0}) # 0 cell is open
+def open_random_nodes(p):
+    reset_lattice()
+    randomize = [[int(np.random.random() < p) for m in range(M)] for n in range(N)]
+    for m in range(len(randomize)):
+        for n in range(len(randomize[m])):
+            lattice.nodes[(m,n)].update({'status': randomize[m][n]})
+    return lattice
 
 def noOfOpenNodes():
     open = 0
@@ -82,16 +85,55 @@ def walk_maze(m, n, cell, indx):
         walk_maze(m, n - 1, cell, indx)
 
 reset_lattice()
-
-for p in range (0, 100, 10):
-    fraction = int((M*N) * (p/100))
+'''
+pcount = {}
+for p in range (0, 11):
+    fraction = int((M*N) * (p/10))
     open_random_nodes(fraction)
     print (noOfOpenNodes() / (M*N))
+    fraction_of_open.append(noOfOpenNodes() / (M*N))
+
+    p10 = p / 10.0
+    pcount[p10] = 0
 
     percolated = check_from_top(lattice)
     if percolated:
-        print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p))
+        pcount[p10] += 1
+        print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p/10))
     reset_lattice()
+'''
+
+t = 100
+
+sample_printed = False
+pcount = {}
+for p10 in range(11):
+    p = p10 / 10.0
+    pcount[p] = 0
+    for tries in range(t):
+        cell = open_random_nodes(p)
+        percolated = check_from_top(cell)
+        if percolated:
+            pcount[p] += 1
+            #print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p))
+
+
+pp({p: c / float(t) for p, c in pcount.items()})
+
+dictlist = []
+
+for key, value in pcount.items():
+    temp = [key,value]
+    dictlist.append(temp)
 
 #nx.draw(lattice)
+col  = [row[1] for row in dictlist]
+
+ticks = []
+xs = np.arange(0, 1.1, 0.1)
+for x in xs:
+    ticks.append(str(x))
+
+plt.xticks(np.arange(0, 11), ticks)
+plt.plot(col[::-1])
 plt.show()
