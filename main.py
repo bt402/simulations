@@ -2,6 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 from pprint import pprint as pp
+from pylab import *
+from scipy.ndimage import measurements
+from collections import Counter
+import itertools
 
 ''' 
 p - probability of node being occupied
@@ -10,9 +14,12 @@ pc - critical value i.e. thershold
 PG - probability that node is in the giant cluster 
 '''
 
-# TODO 1. Plot p / Pg
+# clusters can be of size 1 (isolates) to N
 
-M, N = 20, 20
+# TODO write a function that finds clusters of size s
+# TODO Plot p / Pg
+
+M, N = 30, 30
 NOT_VISITED = 0
 
 class PercolatedException(Exception): pass
@@ -84,6 +91,41 @@ def walk_maze(m, n, cell, indx):
     if n and cell.nodes[(n - 1,m)]['status'] == NOT_VISITED:
         walk_maze(m, n - 1, cell, indx)
 
+cells = np.zeros(shape=(M,N))
+
+def print_lattice(cell):
+    for n, d in lattice.nodes(data=True):
+        cells[n[0]][n[1]] = cell.nodes[n]['status']
+    return (cells)
+
+PG_array = []
+
+def cluster_sizes_number(z2, p):
+    lw, num = measurements.label(z2)
+    totals = Counter(i for i in list(itertools.chain.from_iterable(lw.tolist())))
+
+    cluster_sizes = []
+    to_sum = []
+
+    for i in range(2, (M * N)):
+        if (totals[i]) > 0:
+            cluster_sizes.append(totals[i])
+
+    for i in range(0, (M * N)):
+        count = cluster_sizes.count(i)
+        if count > 0:
+            n_s = count / (M * N)
+            #print("there is " + str(count) + " clusters of size: " + str(i) + ", n_s(p)=" + str(n_s) + ", sn_s=" + str(i * n_s))
+            to_sum.append(i * n_s)
+
+    sum = 0
+
+    for i in range (0, len(to_sum)):
+        sum += to_sum[i]
+    PG = -sum + p
+    print ("PG=" + str(PG))
+    PG_array.append(PG)
+
 reset_lattice()
 '''
 pcount = {}
@@ -115,12 +157,16 @@ for p10 in range(11):
         percolated = check_from_top(cell)
         if percolated:
             pcount[p] += 1
+            # find culster size here
+    cluster_sizes_number(print_lattice(lattice),p)
             #print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p))
 
 
 pp({p: c / float(t) for p, c in pcount.items()})
 
 dictlist = []
+
+
 
 for key, value in pcount.items():
     temp = [key,value]
@@ -136,4 +182,12 @@ for x in xs:
 
 plt.xticks(np.arange(0, 11), ticks)
 plt.plot(col[::-1])
+plt.grid(True)
+plt.show()
+
+plt.xlabel(r'$p$')
+plt.ylabel(r'$P_{G}$')
+plt.xticks(np.arange(0, 11), ticks)
+plt.grid(True)
+plt.plot(PG_array)
 plt.show()
