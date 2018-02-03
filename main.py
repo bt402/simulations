@@ -16,8 +16,8 @@ PG - probability that node is in the giant cluster
 
 # clusters can be of size 1 (isolates) to N
 
-# TODO write a function that finds clusters of size s
-# TODO Plot p / Pg
+# Done write a function that finds clusters of size s
+# TODO Plot p / Pg, not really done...
 
 M, N = 30, 30
 NOT_VISITED = 0
