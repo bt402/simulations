@@ -6,6 +6,7 @@ from pylab import *
 from scipy.ndimage import measurements
 from collections import Counter
 import itertools
+from scipy.signal import _savitzky_golay
 
 ''' 
 p - probability of node being occupied
@@ -48,18 +49,6 @@ def noOfOpenNodes():
         if (lattice.nodes[n]['status'] == 0):
             open += 1
     return open
-
-'''
-#G is the networkx graph
-sub_graphs = list(nx.connected_component_subgraphs(lattice))
-
-#n gives the number of sub graphs
-n = len(sub_graphs)
-
-# you can now loop through all nodes in each sub graph
-for i in range(n):
-    print ("Subgraph:", i, "consists of ",sub_graphs[i].nodes())
-'''
 
 def check_from_top(cell):
     n, walk_index = 0, 1
@@ -123,29 +112,55 @@ def cluster_sizes_number(z2, p):
     for i in range (0, len(to_sum)):
         sum += to_sum[i]
     PG = -sum + p
-    print ("PG=" + str(PG))
+    #print ("PG=" + str(PG))
     PG_array.append(PG)
+    return PG
+
+degree_s_array = []
+
+def degree_s(z2):
+    lw, num = measurements.label(z2)
+    totals = Counter(i for i in list(itertools.chain.from_iterable(lw.tolist())))
+
+    cluster_sizes = []
+    to_sum = []
+    to_sum_squared = []
+
+    for i in range(2, (M * N)):
+        if (totals[i]) > 0:
+            cluster_sizes.append(totals[i])
+
+    for i in range(0, (M * N)):
+        count = cluster_sizes.count(i)
+        if count > 0:
+            n_s = count / (M * N)
+            # print("there is " + str(count) + " clusters of size: " + str(i) + ", n_s(p)=" + str(n_s) + ", sn_s=" + str(i * n_s))
+            to_sum.append(i * n_s)
+            to_sum_squared.append((i**2) * n_s)
+
+    sum = 0
+    sum_squared = 0
+
+    for i in range(0, len(to_sum)):
+        sum += to_sum[i]
+
+    for i in range (0, len(to_sum_squared)):
+        sum_squared += to_sum_squared[i]
+
+    if sum_squared > 0:
+        degree_s_array.append((sum/sum_squared))
+        return sum/sum_squared
+    else:
+        degree_s_array.append(0)
+        return 0
 
 reset_lattice()
-'''
-pcount = {}
-for p in range (0, 11):
-    fraction = int((M*N) * (p/10))
-    open_random_nodes(fraction)
-    print (noOfOpenNodes() / (M*N))
-    fraction_of_open.append(noOfOpenNodes() / (M*N))
-
-    p10 = p / 10.0
-    pcount[p10] = 0
-
-    percolated = check_from_top(lattice)
-    if percolated:
-        pcount[p10] += 1
-        print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p/10))
-    reset_lattice()
-'''
 
 t = 100
+avera_arr = []
+deg = []
+test = []
+test2 = []
 
 sample_printed = False
 pcount = {}
@@ -158,7 +173,12 @@ for p10 in range(11):
         if percolated:
             pcount[p] += 1
             # find culster size here
-    cluster_sizes_number(print_lattice(lattice),p)
+        avera_arr.append(cluster_sizes_number(print_lattice(lattice),p))
+        deg.append(degree_s(print_lattice(lattice)))
+    test.append(np.mean(np.asarray(avera_arr)))
+    test2.append(np.mean(np.asarray(deg)))
+    avera_arr = []
+    deg = []
             #print('\nSample percolating %i x %i, p = %5.2f grid\n' % (M, N, p))
 
 
@@ -166,14 +186,11 @@ pp({p: c / float(t) for p, c in pcount.items()})
 
 dictlist = []
 
-
-
 for key, value in pcount.items():
     temp = [key,value]
     dictlist.append(temp)
 
-#nx.draw(lattice)
-col  = [row[1] for row in dictlist]
+col = [row[1] for row in dictlist]
 
 ticks = []
 xs = np.arange(0, 1.1, 0.1)
@@ -181,13 +198,32 @@ for x in xs:
     ticks.append(str(x))
 
 plt.xticks(np.arange(0, 11), ticks)
-plt.plot(col[::-1])
-plt.grid(True)
-plt.show()
 
+yhat = _savitzky_golay.savgol_filter(test, 9, 3) # window size 73, polynomial order 2
+
+plt.subplot(211)
 plt.xlabel(r'$p$')
 plt.ylabel(r'$P_{G}$')
 plt.xticks(np.arange(0, 11), ticks)
 plt.grid(True)
-plt.plot(PG_array)
+plt.plot(yhat, "r-")
+plt.title("A", loc='left')
+
+pos = np.where(np.asarray(test2) <= 0.5)
+
+pos = np.array(pos).ravel().tolist()
+
+
+for i in pos:
+    if (i > 0 and i <8):
+        test2[i] = np.nan
+
+print (test2)
+
+plt.subplot(212)
+plt.xticks(np.arange(0, 11), ticks)
+plt.ylabel(r'$\left \langle s \right \rangle$')
+plt.xlabel(r'$p_{c}$')
+plt.plot(test2)
+plt.title("B", loc='left')
 plt.show()
