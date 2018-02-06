@@ -195,7 +195,7 @@ col = [row[1] for row in dictlist]
 ticks = []
 xs = np.arange(0, 1.1, 0.1)
 for x in xs:
-    ticks.append(str(x))
+    ticks.append(str(round(x, 2)))
 
 plt.xticks(np.arange(0, 11), ticks)
 
