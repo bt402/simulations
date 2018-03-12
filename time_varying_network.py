@@ -2,7 +2,6 @@ import networkx as nx
 import numpy as np
 import random
 import matplotlib.pyplot as plt
-import time
 
 N = 10000
 m = 2
